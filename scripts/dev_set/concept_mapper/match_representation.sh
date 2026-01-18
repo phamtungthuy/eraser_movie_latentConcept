@@ -1,18 +1,35 @@
 #!/bin/bash
 
-scriptDir=../../../src/concept_mapper
-input=movie_dev_subset.txt
+
+# Get the absolute path of the script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+# Load configuration from config.env
+set -a
+[ -f "$PROJECT_ROOT/config.env" ] && source "$PROJECT_ROOT/config.env"
+set +a
+
+# Use values from config.env or defaults
+model=${MODEL:-google-bert/bert-base-cased}
+minfreq=${MINFREQ:-5}
+maxfreq=${MAXFREQ:-20}
+delfreq=${DELFREQ:-1000000}
+
+# Convert model name to valid filename (replace / and other special chars)
+model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
+
+
+scriptDir="$PROJECT_ROOT/src/concept_mapper"
+input="movie_dev_subset.txt"
 working_file=$input.tok.sent_len
 
-dataPath=../clustering/eraser_movie_dev
-minfreq=0
-maxfreq=1000000
-delfreq=1000000
+dataPath="$PROJECT_ROOT/eraser_movie_dev/$model_file_name"
 
-savePath=position_representation_info
-mkdir $savePath
+savePath="$PROJECT_ROOT/eraser_movie_dev/$model_file_name/position_representation_info"
+mkdir -p $savePath
 
 layer=12
 saveFile=$savePath/explanation_words_representation_layer${layer}.csv
-explanation=../generate_explanation_files/explanation_CLS.txt
+explanation="$PROJECT_ROOT/eraser_movie_dev/$model_file_name/CLS_explanation/explanation_CLS.txt"
 python ${scriptDir}/match_representation.py --datasetFile $dataPath/layer$layer/${working_file}-layer${layer}_min_${minfreq}_max_${maxfreq}_del_${delfreq}-dataset.json --explanationFile $explanation --outputFile $saveFile

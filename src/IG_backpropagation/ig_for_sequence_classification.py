@@ -111,8 +111,10 @@ class IGExplainer(Explainer):
                 self.custom_forward, self.model.bert.embeddings
             )
         else:
+            # Target the .output sub-module to get just the hidden states tensor
+            # (the full layer returns a tuple with None attention weights)
             self.interpreter = LayerIntegratedGradients(
-                self.custom_forward, self.model.bert.encoder.layer[int(layer) - 1]
+                self.custom_forward, self.model.bert.encoder.layer[int(layer) - 1].output
             )
 
     def _summarize_attributions(self, attributions):
@@ -188,6 +190,7 @@ def main():
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
     model = BertForSequenceClassification.from_pretrained(args.model).to(device)
     tokenizer = BertTokenizer.from_pretrained(args.model)
 
@@ -208,7 +211,7 @@ def main():
             result = explainer.interpret(line.strip())
 
             sentence, predicted_class, predicted_confidence, explanations = result
-            print(f"Sentence: {sentence}")
+            print(f"Sentence {sentence_idx}: {sentence}")
             print(
                 f"Predicted class: {predicted_class} ({predicted_confidence*100:.2f}%)"
             )

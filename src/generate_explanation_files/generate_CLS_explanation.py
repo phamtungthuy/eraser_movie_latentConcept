@@ -132,6 +132,7 @@ def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_name)
+    print(args.model_name)
     model = AutoModelForSequenceClassification.from_pretrained(args.model_name).to(device)
 
     print("Finishing loading the dataset, model and tokenizer.")

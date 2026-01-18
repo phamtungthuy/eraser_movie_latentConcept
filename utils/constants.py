@@ -6,3 +6,4 @@ def get_root_path():
 
 
 ROOT_PATH = get_root_path()
+NEUROX_PATH = ROOT_PATH / "src" / "clustering" / "NeuroX"

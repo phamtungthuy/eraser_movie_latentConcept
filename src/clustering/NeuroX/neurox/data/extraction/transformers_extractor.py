@@ -16,7 +16,7 @@ import sys
 import numpy as np
 import torch
 
-from neurox.data.writer import ActivationsWriter
+from NeuroX.neurox.data.writer import ActivationsWriter
 
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer

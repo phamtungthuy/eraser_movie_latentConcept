@@ -1,12 +1,10 @@
 import argparse
 import json
-import sys
 
 from collections import Counter
 from tqdm import tqdm
 
-sys.path.append('NeuroX')
-import neurox.data.loader as data_loader
+import NeuroX.neurox.data.loader as data_loader
 
 
 def main():
