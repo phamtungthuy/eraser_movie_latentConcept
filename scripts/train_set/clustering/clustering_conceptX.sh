@@ -31,15 +31,15 @@ mkdir -p ${outputDir}
 working_file=$input.tok.sent_len #do not change this
 
 # Extract layer-wise activations
-# python ${scriptDir}/neurox_extraction.py \
-#       --model_desc ${model} \
-#       --input_corpus ${ERASER_MOVIE_DIR}/${working_file} \
-#       --output_file ${outputDir}/${working_file}.activations.json \
-#       --output_type json \
-#       --decompose_layers \
-#       --include_special_tokens \
-#       --filter_layers ${layer} \
-#       --input_type text
+python ${scriptDir}/neurox_extraction.py \
+      --model_desc ${model} \
+      --input_corpus ${ERASER_MOVIE_DIR}/${working_file} \
+      --output_file ${outputDir}/${working_file}.activations.json \
+      --output_type json \
+      --decompose_layers \
+      --include_special_tokens \
+      --filter_layers ${layer} \
+      --input_type text
 
 # Create a dataset file with word and sentence indexes
 # python ${scriptDir}/create_data_single_layer.py --text-file $ERASER_MOVIE_DIR/${working_file}.modified --activation-file ${outputDir}/${working_file}.activations-layer${layer}.json --output-prefix ${outputDir}/${working_file}-layer${layer}
@@ -60,6 +60,10 @@ RESULTPATH=${outputDir}/results
 # echo "Extracting Data!"
 # python -u ${scriptDir}/extract_data.py --input-file $DATASETPATH --output-path $outputDir
 
-echo "Creating Clusters!"
-python -u ${scriptDir}/get_agglomerative_clusters.py --vocab-file $VOCABFILE --point-file $POINTFILE --output-path $RESULTPATH  --cluster $CLUSTERS --range 1
-echo "DONE!"
+# echo "Creating Agglomerative Clusters!"
+# python -u ${scriptDir}/get_agglomerative_clusters.py --vocab-file $VOCABFILE --point-file $POINTFILE --output-path $RESULTPATH  --cluster $CLUSTERS --range 1
+# echo "DONE!"
+
+# echo "Creating K-Means Clusters!"
+# python -u ${scriptDir}/get_kmeans_clusters.py --vocab-file $VOCABFILE --point-file $POINTFILE --output-path $RESULTPATH --cluster $CLUSTERS --range 1
+# echo "DONE!"

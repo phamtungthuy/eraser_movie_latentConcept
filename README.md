@@ -21,6 +21,41 @@ Generating explanations for classification predictions based on latent concepts.
 'sentence_idx' and 'word_idx'
   * `src/concept_mapper`: Map tokens to the latent concepts
 - `scripts/`: Includes scripts for running the source code.
+  * `src/train_classifier`: Fine-tune BERT for sentiment classification
+
+## Prerequisites: Fine-tune BERT Model
+
+**Important:** Before running the LACOAT pipeline, you need a fine-tuned BERT model for your classification task. The base BERT model (`google-bert/bert-base-cased`) does NOT have a trained classification head, so using it directly will produce random predictions.
+
+### Step 1: Train the Sentiment Classifier
+
+Run the training script to fine-tune BERT on the movie reviews dataset:
+
+```bash
+./scripts/train_classifier/train_bert_sentiment.sh
+```
+
+Or run directly with custom parameters:
+
+```bash
+python src/train_classifier/train_bert_sentiment.py \
+    --train-file data/movie_train.json \
+    --model-name google-bert/bert-base-cased \
+    --output-dir trained_models/bert_sentiment \
+    --epochs 3 \
+    --batch-size 16
+```
+
+### Step 2: Update Configuration
+
+After training, update `config.env` to use your fine-tuned model:
+
+```bash
+# config.env
+MODEL=trained_models/bert_sentiment   # or absolute path to your trained model
+```
+
+Now you can proceed with the LACOAT pipeline below.
 
 ## Run Code
 ### Training Phase
