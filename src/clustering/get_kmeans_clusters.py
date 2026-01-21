@@ -165,7 +165,7 @@ def main():
     )
     parser.add_argument(
         "--range", "-r",
-        action="store_true",
+        type=bool,
         default=False,
         help="Interpret cluster as range: start,end,step"
     )
