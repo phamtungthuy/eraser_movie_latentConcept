@@ -14,7 +14,7 @@ model=${MODEL:-google-bert/bert-base-cased}
 # Convert model name to valid filename (replace / and other special chars)
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
-fileDir="$PROJECT_ROOT/eraser_movie/$model_file_name/result/validate_predictions/"
+fileDir="$PROJECT_ROOT/eraser_movie/$model_file_name/result_nn/validate_predictions/"
 scriptDir="$PROJECT_ROOT/src/classifier_mapping"
 
 layer=${LAYER:-12}
