@@ -88,3 +88,8 @@ venv
 .venv
 eraser_movie/
 eraser_movie_dev/
+
+.vscode
+trained_models
+ProgramData
+CodeXGLUE
