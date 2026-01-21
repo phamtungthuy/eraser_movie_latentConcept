@@ -93,3 +93,4 @@ eraser_movie_dev/
 trained_models
 ProgramData
 CodeXGLUE
+.env
