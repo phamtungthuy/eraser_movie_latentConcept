@@ -88,6 +88,8 @@ venv
 .venv
 eraser_movie/
 eraser_movie_dev/
+defect_code/
+defect_code_dev/
 
 .vscode
 trained_models

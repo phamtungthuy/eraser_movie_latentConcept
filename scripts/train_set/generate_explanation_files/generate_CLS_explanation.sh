@@ -14,9 +14,9 @@ model=${MODEL:-google-bert/bert-base-cased}
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 scriptDir=$PROJECT_ROOT/src/generate_explanation_files
-inputFile=$PROJECT_ROOT/eraser_movie/movie_train.txt.tok
+inputFile=$PROJECT_ROOT/$DATASET_FOLDER/$TRAIN_DATA_FILE.tok
 
-saveDir=$PROJECT_ROOT/eraser_movie/$model_file_name/CLS_explanation
+saveDir=$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/CLS_explanation
 
 layer=12
 python ${scriptDir}/generate_CLS_explanation.py --dataset-name-or-path ${inputFile} --model-name ${model} --tokenizer-name ${model} --save-dir ${saveDir}

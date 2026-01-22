@@ -14,8 +14,8 @@ model=${MODEL:-google-bert/bert-base-cased}
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 scriptDir=$PROJECT_ROOT/src/generate_explanation_files
-inputDir=$PROJECT_ROOT/eraser_movie/$model_file_name/IG_attributions
-outDir=$PROJECT_ROOT/eraser_movie/$model_file_name/IG_explanation_files_mass_50
+inputDir=$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/IG_attributions
+outDir=$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/IG_explanation_files_mass_50
 
 mkdir ${outDir}
 

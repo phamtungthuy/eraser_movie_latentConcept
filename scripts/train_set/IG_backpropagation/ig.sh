@@ -14,8 +14,8 @@ model=${MODEL:-google-bert/bert-base-cased}
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 scriptDir="$PROJECT_ROOT/src/IG_backpropagation"
-inputFile="$PROJECT_ROOT/eraser_movie/movie_train.txt.tok.sent_len"
-outDir="$PROJECT_ROOT/eraser_movie/$model_file_name/IG_attributions"
+inputFile="$PROJECT_ROOT/$DATASET_FOLDER/$TRAIN_DATA_FILE.tok.sent_len"
+outDir="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/IG_attributions"
 layer=${LAYER:-12}
 saveFile=${outDir}/IG_explanation_layer_${layer}.csv
 

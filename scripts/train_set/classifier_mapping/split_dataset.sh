@@ -19,10 +19,16 @@ model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 scriptDir=$PROJECT_ROOT/src/classifier_mapping
 
-saveDir="$PROJECT_ROOT/eraser_movie/$model_file_name/split_dataset" #'split_dataset_CLS'
+if [ "$USE_KMEANS" = "true" ]; then
+    echo "Using K-Means Folders for Split..."
+    saveDir="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/split_dataset_kmeans"
+    filePath="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/clusters_csv_train_kmeans/"
+else
+    echo "Using Agglomerative Folders for Split..."
+    saveDir="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/split_dataset"
+    filePath="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/clusters_csv_train/"
+fi
 mkdir -p ${saveDir}
-
-filePath="$PROJECT_ROOT/eraser_movie/$model_file_name/clusters_csv_train/"
 
 python ${scriptDir}/split_dataset.py \
   --file_path ${filePath} \
@@ -31,5 +37,5 @@ python ${scriptDir}/split_dataset.py \
   --train_dataset_save_path ${saveDir}/train/ \
   --validation_dataset_save_path ${saveDir}/validation/ \
   --id_save_filename ${saveDir}/id.txt \
-#  --is_first_file \
+ --is_first_file \
 

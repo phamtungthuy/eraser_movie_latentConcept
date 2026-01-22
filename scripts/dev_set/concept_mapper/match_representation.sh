@@ -21,15 +21,15 @@ model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 
 scriptDir="$PROJECT_ROOT/src/concept_mapper"
-input="movie_dev_subset.txt"
+input=${DEV_DATA_FILE}
 working_file=$input.tok.sent_len
 
-dataPath="$PROJECT_ROOT/eraser_movie_dev/$model_file_name"
+dataPath="$PROJECT_ROOT/${DATASET_FOLDER}_dev/$model_file_name"
 
-savePath="$PROJECT_ROOT/eraser_movie_dev/$model_file_name/position_representation_info"
+savePath="$PROJECT_ROOT/${DATASET_FOLDER}_dev/$model_file_name/position_representation_info"
 mkdir -p $savePath
 
 layer=12
 saveFile=$savePath/explanation_words_representation_layer${layer}.csv
-explanation="$PROJECT_ROOT/eraser_movie_dev/$model_file_name/CLS_explanation/explanation_CLS.txt"
+explanation="$PROJECT_ROOT/"${DATASET_FOLDER}_dev"/$model_file_name/CLS_explanation/explanation_CLS.txt"
 python ${scriptDir}/match_representation.py --datasetFile $dataPath/layer$layer/${working_file}-layer${layer}_min_${minfreq}_max_${maxfreq}_del_${delfreq}-dataset.json --explanationFile $explanation --outputFile $saveFile

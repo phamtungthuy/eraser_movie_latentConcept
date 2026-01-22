@@ -10,12 +10,12 @@ model=${MODEL:-google-bert/bert-base-cased}
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 scriptDir=$PROJECT_ROOT/src/generate_explanation_files
-clusterPath=$PROJECT_ROOT/eraser_movie/$model_file_name
+clusterPath=$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name
 explanation=explanation_words.txt
 clusterSize=400
 percentage=90
 
-savePath=$PROJECT_ROOT/eraser_movie/$model_file_name/cluster_Labels_$percentage%
+savePath=$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/cluster_Labels_$percentage%
 mkdir $savePath
 
 layer=12

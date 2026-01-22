@@ -17,8 +17,15 @@ layer=${LAYER:-12}
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 scriptDir=$PROJECT_ROOT/src/classifier_mapping
-fileDir="$PROJECT_ROOT/eraser_movie/$model_file_name/split_dataset"
-savePath="$PROJECT_ROOT/eraser_movie/$model_file_name/result"
+if [ "$USE_KMEANS" = "true" ]; then
+    echo "Using K-Means Folders for Logistic Regression..."
+    fileDir="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/split_dataset_kmeans"
+    savePath="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/result_kmeans"
+else
+    echo "Using Agglomerative Folders for Logistic Regression..."
+    fileDir="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/split_dataset"
+    savePath="$PROJECT_ROOT/$DATASET_FOLDER/$model_file_name/result"
+fi
 
 mkdir -p ${savePath}
 python ${scriptDir}/logistic_regression.py --train_file_path ${fileDir}/train/train_df_${layer}.csv --validate_file_path ${fileDir}/validation/validation_df_${layer}.csv --layer ${layer} --save_path ${savePath} --do_train --do_validate

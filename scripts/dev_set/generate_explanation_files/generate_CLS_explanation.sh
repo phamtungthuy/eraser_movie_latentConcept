@@ -15,9 +15,9 @@ model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 
 scriptDir="$PROJECT_ROOT/src/generate_explanation_files"
-inputFile="$PROJECT_ROOT/eraser_movie_dev/movie_dev_subset.txt.tok"
+inputFile="$PROJECT_ROOT/${DATASET_FOLDER}_dev/$DEV_DATA_FILE.tok"
 
-saveDir="$PROJECT_ROOT/eraser_movie_dev/$model_file_name/CLS_explanation"
+saveDir="$PROJECT_ROOT/${DATASET_FOLDER}_dev/$model_file_name/CLS_explanation"
 
 mkdir -p ${saveDir}
 

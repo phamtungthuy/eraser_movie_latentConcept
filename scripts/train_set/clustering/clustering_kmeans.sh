@@ -12,7 +12,7 @@ set -a
 set +a
 
 scriptDir="$PROJECT_ROOT/src/clustering"
-ERASER_MOVIE_DIR="$PROJECT_ROOT/eraser_movie"
+ERASER_MOVIE_DIR="$PROJECT_ROOT/$DATASET_FOLDER"
 
 # Use values from config.env or defaults
 model=${MODEL:-google-bert/bert-base-cased}
@@ -26,12 +26,12 @@ clusters=${CLUSTERS:-400,400,400}
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 outputDir="$ERASER_MOVIE_DIR/$model_file_name/layer${layer}"
-input=movie_train.txt
+input=$TRAIN_DATA_FILE
 working_file=$input.tok.sent_len
 
 VOCABFILE=${outputDir}/processed-vocab.npy
 POINTFILE=${outputDir}/processed-point.npy
-RESULTPATH=${outputDir}/results
+RESULTPATH=${outputDir}/results_kmeans
 
 mkdir -p ${RESULTPATH}
 
@@ -65,6 +65,6 @@ python -u ${scriptDir}/get_kmeans_clusters.py \
     --point-file $POINTFILE \
     --output-path $RESULTPATH \
     --cluster $clusters \
-    --range 1
+    --range
 
 echo "DONE!"

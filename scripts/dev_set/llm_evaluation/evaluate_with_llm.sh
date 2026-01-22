@@ -14,17 +14,17 @@ set -a
 set +a
 
 model=${MODEL:-google-bert/bert-base-cased}
-LAYER=12
+layer=${LAYER:-12}
 # Convert model name to valid filename
 model_file_name=$(echo "$model" | sed 's/\//_/g' | sed 's/[^a-zA-Z0-9._-]/-/g')
 
 # Input: explanations from previous step
-EXPLANATIONS="${PROJECT_ROOT}/eraser_movie_dev/${model_file_name}/llm_explanation/llm_explanations_layer_${LAYER}.json"
+EXPLANATIONS="${PROJECT_ROOT}/${DATASET_FOLDER}_dev/${model_file_name}/llm_explanation/llm_explanations_layer_${layer}.json"
 
 # Output
-OUTPUT_DIR="${PROJECT_ROOT}/eraser_movie_dev/${model_file_name}/llm_evaluation"
+OUTPUT_DIR="${PROJECT_ROOT}/${DATASET_FOLDER}_dev/${model_file_name}/llm_evaluation"
 mkdir -p "${OUTPUT_DIR}"
-OUTPUT_FILE="${OUTPUT_DIR}/evaluation_results_layer_${LAYER}.json"
+OUTPUT_FILE="${OUTPUT_DIR}/evaluation_results_layer_${layer}.json"
 
 # LLM settings
 PROVIDER="${LLM_PROVIDER:-ollama}"

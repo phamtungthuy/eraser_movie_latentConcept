@@ -13,7 +13,7 @@ import numpy as np
 
 import torch
 
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 
 class Explainer(ABC):
@@ -55,9 +55,12 @@ class Explainer(ABC):
             if not token.startswith(
                 tokenized_explanation[current_idx][0]
             ) and not token.lower().startswith(tokenized_explanation[current_idx][0]):
-                print(
-                    f"[WARNING] Detokenization Failed at {token} vs {tokenized_explanation[current_idx][0]}"
-                )
+                try:
+                    print(
+                        f"[WARNING] Detokenization Failed at {token} vs {tokenized_explanation[current_idx][0]}"
+                    )
+                except UnicodeEncodeError:
+                    print(f"[WARNING] Detokenization Failed at token index {current_idx}")
             tokenized_length = len(self.tokenizer.tokenize(token))
             if method == "first":
                 detokenized_explanation.append(
@@ -105,17 +108,36 @@ class IGExplainer(Explainer):
     def init_explainer(self, layer=0, *args, **kwargs):
         self.custom_forward = lambda *inputs: self.model(*inputs).logits
 
+        # Detect base model (bert or roberta)
+        if hasattr(self.model, "roberta"):
+            self.base_model = self.model.roberta
+        elif hasattr(self.model, "bert"):
+            self.base_model = self.model.bert
+        else:
+            self.base_model = self.model.base_model
+
         # Layer 0 is embedding
         if layer == 0:
             self.interpreter = LayerIntegratedGradients(
-                self.custom_forward, self.model.bert.embeddings
+                self.custom_forward, self.base_model.embeddings
             )
         else:
             # Target the .output sub-module to get just the hidden states tensor
-            # (the full layer returns a tuple with None attention weights)
             self.interpreter = LayerIntegratedGradients(
-                self.custom_forward, self.model.bert.encoder.layer[int(layer) - 1].output
+                self.custom_forward, self.base_model.encoder.layer[int(layer) - 1].output
             )
+
+    def _get_baseline(self, input_ids, baseline_type):
+        """Generate baseline embeddings for Integrated Gradients."""
+        emb_layer = self.base_model.embeddings.word_embeddings
+        
+        if baseline_type == "zero":
+            return torch.zeros_like(emb_layer(input_ids))
+        elif baseline_type == "average":
+            avg_emb = torch.mean(emb_layer.weight, dim=0)
+            seq_len = input_ids.shape[1]
+            return avg_emb.unsqueeze(0).expand(seq_len, -1).unsqueeze(0)
+        return None
 
     def _summarize_attributions(self, attributions):
         attributions = attributions.sum(dim=-1).squeeze(0)
@@ -128,15 +150,20 @@ class IGExplainer(Explainer):
         inputs = inputs.to(self.device)
 
         logits = self.custom_forward(inputs["input_ids"], inputs["attention_mask"])
-        logits = logits[0, :].detach().squeeze()
-        predicted_class_idx = np.argmax(logits.cpu().numpy())
+        logits = logits[0].detach()  # Shape: [num_classes], keep as 1D
+        predicted_class_idx = int(torch.argmax(logits).item())
         predicted_class = self.model.config.id2label[predicted_class_idx]
-        predicted_confidence = round(
-            torch.softmax(logits, dim=-1)[predicted_class_idx].item(), 2
-        )
+        probs = torch.softmax(logits, dim=-1)
+        predicted_confidence = round(probs[predicted_class_idx].item(), 2)
+
+        # Handle baseline if specified
+        baseline_type = kwargs.get("baseline", None)
+        baselines = None
+        if baseline_type:
+            baselines = self._get_baseline(inputs["input_ids"], baseline_type)
 
         interpreter_args = {
-            "baselines": kwargs.get("baselines", None),
+            "baselines": baselines,
             "additional_forward_args": (inputs["attention_mask"],),
             "target": (predicted_class_idx,),
             "n_steps": kwargs.get("n_steps", 500),
@@ -186,13 +213,14 @@ def main():
     parser.add_argument("model")
     parser.add_argument("layer", type=int)
     parser.add_argument("save_file")
+    parser.add_argument("--baseline", default=None, help="Baseline type: zero, average")
 
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
-    model = BertForSequenceClassification.from_pretrained(args.model).to(device)
-    tokenizer = BertTokenizer.from_pretrained(args.model)
+    model = AutoModelForSequenceClassification.from_pretrained(args.model).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(args.model)
 
     explainer = IGExplainer(model, tokenizer, device=device)
 
@@ -208,7 +236,7 @@ def main():
     all_saliencies = []
     with open(args.input_file) as fp:
         for sentence_idx, line in enumerate(fp):
-            result = explainer.interpret(line.strip())
+            result = explainer.interpret(line.strip(), baseline=args.baseline)
 
             sentence, predicted_class, predicted_confidence, explanations = result
             print(f"Sentence {sentence_idx}: {sentence}")

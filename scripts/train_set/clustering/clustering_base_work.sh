@@ -11,11 +11,11 @@ set +a
 
 scriptDir="$PROJECT_ROOT/src/clustering"
 inputPath="$PROJECT_ROOT/data" # path to a sentence file
-input=movie_train.txt #name of the sentence file
+input=$TRAIN_DATA_FILE #name of the sentence file
 
 cd "$SCRIPT_DIR" || exit 1
-mkdir -p "$PROJECT_ROOT/eraser_movie"
-ERASER_MOVIE_DIR="$PROJECT_ROOT/eraser_movie"
+mkdir -p "$PROJECT_ROOT/$DATASET_FOLDER"
+DATASET_FOLDER_DIR="$PROJECT_ROOT/$DATASET_FOLDER"
 
 # maximum sentence length
 sentence_length=${SENTENCE_LENGTH:-300}
@@ -24,14 +24,14 @@ working_file=$input.tok.sent_len #do not change this
 
 
 #1. Tokenize text with moses tokenizer
-perl "${scriptDir}/tokenizer/tokenizer.perl" -l en -no-escape < "${inputPath}/${input}" > "$ERASER_MOVIE_DIR/$input.tok"
+perl "${scriptDir}/tokenizer/tokenizer.perl" -l en -no-escape < "${inputPath}/${input}" > "$DATASET_FOLDER_DIR/$input.tok"
 
 #2. Do sentence length filtering and keep sentences max length of 300
-python "${scriptDir}/sentence_length.py" --text-file "$ERASER_MOVIE_DIR/$input.tok" --length ${sentence_length} --output-file "$ERASER_MOVIE_DIR/$input.tok.sent_len"
+python "${scriptDir}/sentence_length.py" --text-file "$DATASET_FOLDER_DIR/$input.tok" --length ${sentence_length} --output-file "$DATASET_FOLDER_DIR/$input.tok.sent_len"
 
 #3. Modify the input file to be compatible with the model
-python "${scriptDir}/modify_input.py" --text-file "$ERASER_MOVIE_DIR/$input.tok.sent_len" --output-file "$ERASER_MOVIE_DIR/$input.tok.sent_len.modified"
+python "${scriptDir}/modify_input.py" --text-file "$DATASET_FOLDER_DIR/$input.tok.sent_len" --output-file "$DATASET_FOLDER_DIR/$input.tok.sent_len.modified"
 
 #4. Calculate vocabulary size
-python "${scriptDir}/frequency_count.py" --input-file "$ERASER_MOVIE_DIR/${working_file}.modified" --output-file "$ERASER_MOVIE_DIR/${working_file}.words_freq"
+python "${scriptDir}/frequency_count.py" --input-file "$DATASET_FOLDER_DIR/${working_file}.modified" --output-file "$DATASET_FOLDER_DIR/${working_file}.words_freq"
 

@@ -539,9 +539,19 @@ def extract_representations(
         dtype=dtype,
     )
 
+    # Count total lines for progress bar
+    with open(input_corpus, "r") as fp:
+        total_lines = sum(1 for _ in fp)
+    print(f"Total sentences: {total_lines}")
+
     print("Extracting representations from model")
     tokenization_counts = {}  # Cache for tokenizer rules
-    for sentence_idx, sentence in enumerate(corpus_generator(input_corpus)):
+    
+    # Memory optimization: garbage collect periodically
+    import gc
+    gc_interval = 100  # Run GC every N sentences
+    
+    for sentence_idx, sentence in enumerate(tqdm(corpus_generator(input_corpus), total=total_lines, desc="Extracting")):
         hidden_states, extracted_words = extract_sentence_representations(
             sentence,
             model,
@@ -555,12 +565,20 @@ def extract_representations(
             input_type=input_type,
         )
 
-        print("Hidden states: ", hidden_states.shape)
-        print("# Extracted words: ", len(extracted_words))
-
         writer.write_activations(sentence_idx, extracted_words, hidden_states)
+        
+        # Memory optimization: explicit cleanup
+        del hidden_states
+        del extracted_words
+        
+        # Periodic garbage collection
+        if (sentence_idx + 1) % gc_interval == 0:
+            gc.collect()
+            if device != "cpu" and torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     writer.close()
+    print(f"Extraction complete. Processed {total_lines} sentences.")
 
 
 HDF5_SPECIAL_TOKENS = {".": "__DOT__", "/": "__SLASH__"}
